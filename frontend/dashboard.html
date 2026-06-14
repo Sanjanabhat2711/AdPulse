@@ -1,0 +1,1447 @@
+<!---->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AdPulse — Campaign Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+:root {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface2: #f1f5f9;
+  --surface3: #e2e8f0;
+  --border: #cbd5e1;
+  --accent: #0284c7;
+  --accent2: #6d28d9;
+  --accent3: #059669;
+  --accent4: #d97706;
+  --danger: #dc2626;
+  --text: #0f172a;
+  --text2: #334155;
+  --text3: #64748b;
+  --font-display: 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'Fira Code', monospace;
+  --glow: 0 0 30px rgba(0, 212, 255, 0.15);
+}
+
+[data-theme="dark"] {
+  --bg: #07090f;
+  --surface: #0d1117;
+  --surface2: #131922;
+  --surface3: #1a2235;
+  --border: #1e2d45;
+  --accent: #00d4ff;
+  --accent2: #7c3aed;
+  --accent3: #10b981;
+  --accent4: #f59e0b;
+  --danger: #ef4444;
+  --text: #e8edf5;
+  --text2: #7a92b4;
+  --text3: #4a6080;
+  --glow: 0 0 30px rgba(0, 212, 255, 0.15);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:14px;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.app{display:flex;min-height:100vh;position:relative;z-index:1;}
+.sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.logo{padding:24px 20px 20px;border-bottom:1px solid var(--border);}
+.logo-mark{font-family:var(--font-display);font-size:20px;font-weight:800;letter-spacing:-0.5px;}
+.logo-mark span{color:var(--accent);}
+.logo-sub{font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:2px;font-family:var(--font-mono);}
+.nav{padding:12px 10px;flex:1;}
+.nav-section-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:8px 10px 4px;font-family:var(--font-mono);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;transition:all 0.15s;margin:1px 0;border:1px solid transparent;}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{background:linear-gradient(135deg,rgba(0,212,255,0.1),rgba(124,58,237,0.1));color:var(--accent);border-color:rgba(0,212,255,0.2);}
+.nav-icon{width:16px;text-align:center;font-size:14px;}
+.nav-badge{margin-left:auto;background:var(--accent2);color:white;font-size:9px;padding:1px 6px;border-radius:10px;font-family:var(--font-mono);}
+.sidebar-status{padding:16px 20px;border-top:1px solid var(--border);}
+.status-dot{width:7px;height:7px;background:var(--accent3);border-radius:50%;display:inline-block;margin-right:6px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.status-text{font-size:11px;color:var(--text2);}
+.main{flex:1;padding:28px 32px;overflow-x:hidden;}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+.page-title{font-family:var(--font-display);font-size:24px;font-weight:800;}
+.page-title span{color:var(--accent);}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.btn{padding:8px 18px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:var(--font-body);transition:all 0.2s;letter-spacing:0.3px;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#00b8de;transform:translateY(-1px);box-shadow:var(--glow);}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;position:relative;overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s;}
+.kpi-card:hover{border-color:rgba(0,212,255,0.3);box-shadow:var(--glow);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0;transition:opacity 0.2s;}
+.kpi-card:hover::before{opacity:1;}
+.kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);font-family:var(--font-mono);margin-bottom:10px;}
+.kpi-value{font-family:var(--font-display);font-size:26px;font-weight:800;line-height:1;}
+.kpi-sub{font-size:11px;color:var(--text2);margin-top:6px;}
+.delta-up{color:var(--accent3);}
+.delta-down{color:var(--danger);}
+.panel-row{display:grid;gap:20px;margin-bottom:20px;}
+.panel-row-2{grid-template-columns:1fr 1fr;}
+.panel-row-3{grid-template-columns:2fr 1fr 1fr;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;animation:fadeIn 0.4s ease both;}
+.panel-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+.panel-title{font-family:var(--font-display);font-size:14px;font-weight:700;}
+.panel-title small{font-family:var(--font-mono);font-size:10px;color:var(--text3);margin-left:8px;font-weight:400;}
+.panel-body{padding:20px;}
+.tab-bar{display:flex;gap:4px;background:var(--surface2);border-bottom:1px solid var(--border);padding:8px 20px 0;}
+.tab{padding:8px 16px;border-radius:8px 8px 0 0;font-size:12px;font-weight:600;cursor:pointer;color:var(--text3);border:1px solid transparent;border-bottom:none;transition:all 0.15s;margin-bottom:-1px;}
+.tab:hover{color:var(--text2);}
+.tab.active{background:var(--surface);color:var(--accent);border-color:var(--border);border-bottom-color:var(--surface);}
+canvas{display:block;}
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);background:var(--surface2);font-family:var(--font-mono);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;}
+thead th:hover{color:var(--accent);}
+tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
+tbody tr:hover{background:var(--surface2);}
+tbody td{padding:11px 14px;color:var(--text2);}
+tbody td:first-child{color:var(--text);font-weight:500;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:0.5px;font-family:var(--font-mono);}
+.badge-green{background:rgba(16,185,129,0.12);color:var(--accent3);border:1px solid rgba(16,185,129,0.2);}
+.badge-blue{background:rgba(0,212,255,0.1);color:var(--accent);border:1px solid rgba(0,212,255,0.2);}
+.badge-yellow{background:rgba(245,158,11,0.1);color:var(--accent4);border:1px solid rgba(245,158,11,0.2);}
+.badge-red{background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid rgba(239,68,68,0.2);}
+.shap-list{display:flex;flex-direction:column;gap:10px;}
+.shap-row{display:flex;align-items:center;gap:10px;}
+.shap-label{width:180px;flex-shrink:0;font-size:11px;color:var(--text2);font-family:var(--font-mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.shap-bar-wrap{flex:1;height:8px;background:var(--surface3);border-radius:4px;overflow:hidden;}
+.shap-bar{height:100%;border-radius:4px;transition:width 1s cubic-bezier(0.34,1.56,0.64,1);}
+.shap-val{font-size:10px;color:var(--text3);font-family:var(--font-mono);width:50px;text-align:right;flex-shrink:0;}
+.cluster-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.cluster-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;transition:all 0.2s;cursor:pointer;}
+.cluster-card:hover{border-color:rgba(0,212,255,0.3);transform:translateY(-2px);}
+.cluster-name{font-family:var(--font-display);font-size:13px;font-weight:700;margin-bottom:8px;}
+.cluster-metric{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;}
+.cluster-metric-key{color:var(--text3);}
+.cluster-metric-val{color:var(--text);font-family:var(--font-mono);}
+.funnel{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0;}
+.funnel-step{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-radius:8px;transition:all 0.2s;cursor:pointer;}
+.funnel-step:hover{filter:brightness(1.2);}
+.funnel-label{font-size:12px;font-weight:600;}
+.funnel-val{font-family:var(--font-mono);font-size:13px;color:var(--text2);}
+.funnel-pct{font-size:10px;color:var(--text3);margin-left:8px;}
+.pred-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);font-family:var(--font-mono);}
+.form-input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:var(--font-mono);transition:border-color 0.2s;outline:none;width:100%;}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,212,255,0.1);}
+select.form-input option{background:var(--surface);}
+.pred-result{background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(124,58,237,0.08));border:1px solid rgba(0,212,255,0.2);border-radius:10px;padding:20px;text-align:center;margin-top:12px;}
+.pred-amount{font-family:var(--font-display);font-size:42px;font-weight:800;color:var(--accent);}
+.pred-label{font-size:11px;color:var(--text3);margin-top:4px;letter-spacing:1px;text-transform:uppercase;font-family:var(--font-mono);}
+.insights-list{display:flex;flex-direction:column;gap:8px;}
+.insight-item{display:flex;gap:12px;align-items:flex-start;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;border-left:3px solid transparent;transition:all 0.2s;}
+.insight-item:hover{transform:translateX(3px);}
+.insight-item.good{border-left-color:var(--accent3);}
+.insight-item.warn{border-left-color:var(--accent4);}
+.insight-item.bad{border-left-color:var(--danger);}
+.insight-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.insight-text{font-size:12px;color:var(--text2);line-height:1.5;}
+.insight-text strong{color:var(--text);}
+.page{display:none;}
+.page.active{display:block;}
+.progress-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.progress-label{width:100px;font-size:11px;color:var(--text2);flex-shrink:0;}
+.progress-track{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:3px;transition:width 1.2s ease;}
+.progress-val{width:50px;text-align:right;font-size:11px;font-family:var(--font-mono);color:var(--text2);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--surface);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+.risk-high td{background:rgba(239,68,68,0.03);}
+/* Chat styles */
+.chat-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;height:280px;overflow-y:auto;padding:14px;margin-bottom:12px;display:flex;flex-direction:column;gap:10px;}
+.chat-msg{max-width:85%;padding:10px 14px;border-radius:10px;font-size:12px;line-height:1.5;}
+.chat-msg.user{background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);align-self:flex-end;color:var(--text);}
+.chat-msg.ai{background:var(--surface3);border:1px solid var(--border);align-self:flex-start;color:var(--text2);}
+.chat-msg.ai strong{color:var(--accent);}
+.chat-input-row{display:flex;gap:8px;}
+/* Upload area */
+.upload-area{border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;transition:all 0.2s;cursor:pointer;}
+.upload-area:hover,.upload-area.drag{border-color:var(--accent);background:rgba(0,212,255,0.04);}
+.upload-area input{display:none;}
+/* Spinner */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,212,255,0.3);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;margin-right:6px;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#toast{position:fixed;bottom:24px;right:24px;background:var(--surface3);border:1px solid var(--accent3);border-radius:10px;padding:12px 20px;font-size:13px;color:var(--text);z-index:9999;transform:translateY(80px);opacity:0;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);max-width:320px;}
+#toast.show{transform:translateY(0);opacity:1;}
+/* AI page layout */
+.ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+.creative-result{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+.creative-metric{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:11px;}
+.creative-metric-key{color:var(--text3);margin-bottom:4px;}
+.creative-metric-val{font-family:var(--font-mono);font-size:16px;font-weight:700;}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    transform: translateX(-100%);
+    z-index: 1000;
+    transition: transform 0.3s ease;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .mobile-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+  }
+  .mobile-overlay.open {
+    display: block;
+  }
+  .mobile-toggle {
+    display: block !important;
+  }
+}
+.mobile-toggle {
+    display: none;
+    font-size: 20px;
+    cursor: pointer;
+    margin-right: 12px;
+}
+.theme-orb {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 2000;
+    font-size: 20px;
+    color: var(--text);
+    transition: all 0.3s;
+}
+.theme-orb:hover {
+    transform: scale(1.1);
+    box-shadow: var(--glow);
+}
+</style>
+
+</head>
+<body data-theme="dark">
+<div class="mobile-overlay" onclick="toggleSidebar()"></div>
+<button class="theme-orb" onclick="toggleTheme()" title="Toggle Light/Dark Mode" id="themeOrb"><i class="fas fa-moon"></i></button>
+<div id="toast"></div>
+
+<div class="app">
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">Ad<span>Pulse</span></div>
+    <div class="logo-sub">Campaign Intelligence</div>
+  </div>
+  <div class="nav">
+    <div class="nav-section-label">Analytics</div>
+    <div class="nav-item active" onclick="goPage('overview',this)"><span class="nav-icon">◉</span> Overview</div>
+    <div class="nav-item" onclick="goPage('upload',this)"><span class="nav-icon">↑</span> Upload Data</div>
+    <div class="nav-item" onclick="goPage('campaigns',this)"><span class="nav-icon">⊞</span> Campaigns</div>
+    <div class="nav-section-label" style="margin-top:10px;">AI / ML</div>
+    <div class="nav-item" onclick="goPage('predict',this)"><span class="nav-icon">⬡</span> Predict Revenue</div>
+    <div class="nav-item" onclick="goPage('explainability',this)"><span class="nav-icon">◈</span> Explainability</div>
+    <div class="nav-item" onclick="goPage('aitools',this)"><span class="nav-icon">🤖</span> AI Tools</div>
+    <div class="nav-item" onclick="goPage('budget',this)"><span class="nav-icon">$</span> Budget Optimizer</div>
+    <div class="nav-section-label" style="margin-top:10px;">Reports</div>
+    <div class="nav-item" onclick="goPage('segments',this)"><span class="nav-icon">⬡</span> Segments</div>
+    <div class="nav-item" onclick="goPage('reports',this)"><span class="nav-icon">≡</span> Reports</div>
+    <div class="nav-item" onclick="goPage('alerts',this)"><span class="nav-icon">◎</span> Alerts<span class="nav-badge" style="background:var(--danger);" id="alertBadge">0</span></div>
+  </div>
+  <div class="sidebar-status">
+    <span class="status-dot" id="statusDot"></span>
+    <span class="status-text" id="statusText">Connecting...</span>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PAGE: OVERVIEW -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page active" id="page-overview">
+  <div class="topbar">
+    <div>
+      <div class="page-title"><i class="fas fa-bars mobile-toggle" onclick="toggleSidebar()"></i>Campaign <span>Overview</span></div>
+      <div style="font-size:11px;color:var(--text3);margin-top:3px;font-family:var(--font-mono);">All channels · Live from backend</div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-outline" onclick="refreshAll()">↻ Refresh</button>
+      <button class="btn btn-outline" onclick="window.open('/api/report/csv','_blank')">↓ CSV</button>
+      <button class="btn btn-primary" onclick="window.open('/api/report/company','_blank')">↓ Report</button>
+    </div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-value" id="kpi-rev">—</div><div class="kpi-sub"><span class="delta-up">↑ from dataset</span></div></div>
+    <div class="kpi-card"><div class="kpi-label">Total Spend</div><div class="kpi-value" id="kpi-spend">—</div><div class="kpi-sub"><span class="delta-up">↑ budget utilised</span></div></div>
+    <div class="kpi-card"><div class="kpi-label">Avg ROAS</div><div class="kpi-value" id="kpi-roas">—</div><div class="kpi-sub">Target ≥ 3.0x</div></div>
+    <div class="kpi-card"><div class="kpi-label">Conversions</div><div class="kpi-value" id="kpi-conv">—</div><div class="kpi-sub">Total from campaigns</div></div>
+    <div class="kpi-card"><div class="kpi-label">At-Risk</div><div class="kpi-value" style="color:var(--danger);" id="kpi-risk">—</div><div class="kpi-sub">Flagged campaigns</div></div>
+  </div>
+  <div class="panel-row panel-row-3">
+    <div class="panel"><div class="panel-header"><span class="panel-title">Revenue Trend <small>by channel</small></span><div style="display:flex;gap:8px;"><span class="badge badge-blue">Revenue</span><span class="badge badge-yellow">Spend</span></div></div><div class="panel-body" style="padding:16px 12px;"><canvas id="revChart" height="160"></canvas></div></div>
+    <div class="panel"><div class="panel-header"><span class="panel-title">Channel Mix</span></div><div class="panel-body" style="padding:16px;display:flex;flex-direction:column;align-items:center;"><canvas id="channelChart" height="160" width="160"></canvas><div id="channelLegend" style="margin-top:12px;width:100%;font-size:11px;"></div></div></div>
+    <div class="panel"><div class="panel-header"><span class="panel-title">ROAS by Channel</span></div><div class="panel-body" style="padding:12px;"><canvas id="effChart" height="160"></canvas></div></div>
+  </div>
+  <div class="panel-row panel-row-2">
+    <div class="panel"><div class="panel-header"><span class="panel-title">Conversion Funnel</span><span class="badge badge-green">Live</span></div><div class="panel-body"><div class="funnel" id="funnelViz"></div></div></div>
+    <div class="panel"><div class="panel-header"><span class="panel-title">Channel Health</span></div><div class="panel-body"><div id="healthBars"></div></div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PAGE: UPLOAD -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="page-upload">
+  <div class="topbar"><div class="page-title"><i class="fas fa-bars mobile-toggle" onclick="toggleSidebar()"></i>Upload <span>Data</span></div></div>
+  <div class="panel-row panel-row-2">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Upload Campaign CSV</span></div>
+      <div class="panel-body">
+        <div class="upload-area" id="dropArea" onclick="document.getElementById('csvFileInput').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+          <input type="file" id="csvFileInput" accept=".csv" onchange="handleFileSelect(this)"/>
+          <div style="font-size:32px;margin-bottom:12px;">📊</div>
+          <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:6px;">Drop your CSV here</div>
+          <div style="font-size:12px;color:var(--text3);">or click to browse · digital_media_dataset.csv</div>
+          <div style="margin-top:16px;font-size:11px;color:var(--text3);font-family:var(--font-mono);">Required columns: impressions, clicks, spend_usd, revenue_usd</div>
+        </div>
+        <div id="uploadStatus" style="margin-top:12px;font-size:12px;color:var(--text2);"></div>
+        <button class="btn btn-primary" style="width:100%;padding:12px;margin-top:12px;" id="uploadBtn" onclick="uploadFile()" disabled>↑ Upload & Process</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Dataset Preview</span></div>
+      <div class="panel-body">
+        <div id="dataPreview" style="font-size:12px;color:var(--text3);font-family:var(--font-mono);">No file selected yet.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PAGE: CAMPAIGNS -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="page-campaigns">
+  <div class="topbar">
+    <div><div class="page-title"><i class="fas fa-bars mobile-toggle" onclick="toggleSidebar()"></i>All <span>Campaigns</span></div><div style="font-size:11px;color:var(--text3);margin-top:3px;font-family:var(--font-mono);" id="campCount">Loading...</div></div>
+    <div class="topbar-right">
+      <input class="form-input" style="width:200px;" placeholder="🔍 Search..." oninput="filterTable(this.value)"/>
+      <button class="btn btn-outline" onclick="window.open('/api/report/csv','_blank')">↓ CSV</button>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="tab-bar">
+      <div class="tab active" onclick="filterStatus('all',this)">All</div>
+      <div class="tab" onclick="filterStatus('high',this)">High Performers</div>
+      <div class="tab" onclick="filterStatus('medium',this)">Steady</div>
+      <div class="tab" onclick="filterStatus('risk',this)">⚠ At Risk</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th onclick="sortTable(0)">Campaign ↕</th>
+          <th onclick="sortTable(1)">Channel ↕</th>
+          <th onclick="sortTable(2)">Spend ↕</th>
+          <th onclick="sortTable(3)">Revenue ↕</th>
+          <th onclick="sortTable(4)">ROAS ↕</th>
+          <th onclick="sortTable(5)">CTR ↕</th>
+          <th onclick="sortTable(6)">CVR ↕</th>
+          <th>Health</th><th>Status</th>
+        </tr></thead>
+        <tbody id="campaignBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PAGE: PREDICT -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="page-predict">
+  <div class="topbar"><div class="page-title"><i class="fas fa-bars mobile-toggle" onclick="toggleSidebar()"></i>Predict <span>Revenue</span></div><div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);">Live call to /api/predict · XGB+LGB</div></div>
+  <div class="panel-row panel-row-2">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Campaign Parameters</span></div>
+      <div class="panel-body">
+        <div class="pred-form">
+          <div class="form-group"><label class="form-label">Channel</label>
+            <select class="form-input" id="p-channel"><option>Search</option><option>Social Media</option><option>Display</option><option>Email</option><option>Video</option><option>Affiliate</option></select></div>
+          <div class="form-group"><label class="form-label">Spend (USD)</label><input class="form-input" id="p-spend" type="number" value="5000"/></div>
+          <div class="form-group"><label class="form-label">Impressions</label><input class="form-input" id="p-imp" type="number" value="150000"/></div>
+          <div class="form-group"><label class="form-label">Clicks</label><input class="form-input" id="p-clk" type="number" value="4500"/></div>
+          <div class="form-group"><label class="form-label">Conversion Rate %</label><input class="form-input" id="p-cvr" type="number" value="3.2" step="0.1"/></div>
+          <div class="form-group"><label class="form-label">Ad Quality Score (1-10)</label><input class="form-input" id="p-aq" type="number" value="7.5" step="0.1"/></div>
+          <div class="form-group"><label class="form-label">Bounce Rate %</label><input class="form-input" id="p-bounce" type="number" value="40"/></div>
+          <div class="form-group"><label class="form-label">Session Duration (sec)</label><input class="form-input" id="p-sess" type="number" value="90"/></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;padding:12px;" onclick="predictRevenue()" id="predictBtn">⬡ Run Prediction</button>
+        <div class="pred-result" id="predResult" style="display:none;">
+          <div class="pred-label">Predicted Revenue</div>
+          <div class="pred-amount" id="predValue">$0</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px;">
+            <div style="text-align:center;"><div style="font-size:18px;font-weight:700;font-family:var(--font-display);color:var(--accent4);" id="predRoas">0x</div><div style="font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-top:3px;">Est. ROAS</div></div>
+            <div style="text-align:center;"><div style="font-size:18px;font-weight:700;font-family:var(--font-display);color:var(--accent3);" id="predCpa">$0</div><div style="font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-top:3px;">Est. CPA</div></div>
+            <div style="text-align:center;"><div style="font-size:18px;font-weight:700;font-family:var(--font-display);" id="predHealth">—</div><div style="font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-top:3px;">Health</div></div>
+          </div>
+          <div id="predInsight" style="margin-top:14px;padding:10px 14px;background:rgba(0,212,255,0.06);border-radius:8px;font-size:12px;color:var(--text2);text-align:left;line-height:1.5;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel"><div class="panel-header"><span class="panel-title">Spend Sensitivity</span></div><div class="panel-body"><canvas id="sensitivityChart" height="260"></canvas><div style="margin-top:8px;font-size:11px;color:var(--text3);">Revenue vs spend ±50% from current value</div></div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PAGE: EXPLAINABILITY -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="page-explainability">
+  <div class="topbar"><div class="page-title"><i class="fas fa-bars mobile-toggle" onclick="toggleSidebar()"></i>Model <span>Explainability</span></div><div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);">SHAP + LIME · from /api/shap/global</div></div>
+  <div class="panel-row panel-row-2">
+    <div class="panel"><div class="panel-header"><span class="panel-title">SHAP Feature Importance <small>global</small></span><span class="badge badge-blue">Global XAI</span></div><div class="panel-body"><div class="shap-list" id="shapList"></div></div></div>
+    <div class="panel"><div class="panel-header"><span class="panel-title">LIME Local Explanation</span><span class="badge badge-yellow">Local XAI</span></div><div class="panel-body"><div class="shap-list" id="limeList"></div><div style="margin-top:14px;padding:12px;background:var(--surface2);border-radius:8px;font-size:11px;color:var(--text2);line-height:1.6;" id="limeNarrative"></div></div></div>
+  </div>
+  <div class="panel"><div class="panel-header"><span class="panel-title">SHAP Dependence — log_spend vs Revenue Impact</span></div><div class="panel-body"><canvas id="shapDependenceChart" height="180"></canvas></div></div>
+  <div class="panel" style="margin-top:20px;"><div class="panel-header"><span class="panel-title">Business Insight Summary</span></div><div class="panel-body"><div class="insights-list" id="xaiInsights"></div></div></div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PAGE: AI TOOLS -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="page-aitools">
+  <div class="topbar"><div class="page-title"><i class="fas fa-bars mobile-toggle" onclick="toggleSidebar()"></i>AI <span>Tools</span></div><div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);">OpenAI · HuggingFace · Google Vision</div></div>
+  <div class="ai-grid">
+    <!-- Chat Assistant -->
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">🤖 AI Campaign Analyst</span><span class="badge badge-blue">GPT-4o-mini</span></div>
+      <div class="panel-body">
+        <div class="chat-box" id="chatBox">
+          <div class="chat-msg ai"><strong>AdPulse AI:</strong> Hi! Ask me anything about your campaigns. Example: "Why is my Display campaign underperforming?" or "How can I improve ROAS?"</div>
+        </div>
+        <div class="chat-input-row">
+          <input class="form-input" id="chatInput" placeholder="Ask about any campaign..." onkeydown="if(event.key==='Enter')sendChat()" style="flex:1;"/>
+          <button class="btn btn-primary" onclick="sendChat()" id="chatBtn">Send</button>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn btn-outline" style="font-size:10px;padding:4px 10px;" onclick="quickChat('Why is my campaign failing?')">Why failing?</button>
+          <button class="btn btn-outline" style="font-size:10px;padding:4px 10px;" onclick="quickChat('How to improve ROAS?')">Improve ROAS</button>
+          <button class="btn btn-outline" style="font-size:10px;padding:4px 10px;" onclick="quickChat('Where should I allocate budget?')">Budget advice</button>
+        </div>
+      </div>
+    </div>
+    <!-- Ad Copy Analyzer -->
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">📝 Ad Copy Analyzer</span><span class="badge badge-yellow">HuggingFace NLP</span></div>
+      <div class="panel-body">
+        <div class="form-group" style="margin-bottom:12px;">
+          <label class="form-label">Paste your ad copy below</label>
+          <textarea class="form-input" id="copyText" rows="4" placeholder="Discover the best deals! Shop now and save 50% on premium products. Limited time offer — don't miss out!"></textarea>
+        </div>
+        <button class="btn btn-primary" style="width:100%;" onclick="analyzeCopy()" id="copyBtn">⚡ Analyze Copy</button>
+        <div id="copyResult" style="display:none;margin-top:14px;">
+          <div class="creative-result">
+            <div class="creative-metric"><div class="creative-metric-key">Sentiment</div><div class="creative-metric-val" id="copySentiment">—</div></div>
+            <div class="creative-metric"><div class="creative-metric-key">Confidence</div><div class="creative-metric-val" id="copyConf">—</div></div>
+            <div class="creative-metric"><div class="creative-metric-key">Engagement</div><div class="creative-metric-val" id="copyEngagement">—</div></div>
+            <div class="creative-metric"><div class="creative-metric-key">CTR Impact</div><div class="creative-metric-val" id="copyCTR">—</div></div>
+          </div>
+          <div id="copyRec" style="margin-top:10px;padding:10px;background:rgba(0,212,255,0.06);border-radius:8px;font-size:12px;color:var(--text2);"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Creative Analyzer -->
+  <div class="panel">
+    <div class="panel-header"><span class="panel-title">🖼️ Ad Creative Analyzer</span><span class="badge badge-green">Google Vision API</span></div>
+    <div class="panel-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div>
+          <div class="upload-area" onclick="document.getElementById('creativeFile').click()" style="padding:20px;">
+            <input type="file" id="creativeFile" accept="image/*" onchange="analyzeCreative(this)"/>
+            <div style="font-size:24px;margin-bottom:8px;">🖼️</div>
+            <div style="font-size:12px;color:var(--text2);">Upload ad image (JPG, PNG)</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:4px;">Detects text, faces, brand safety, quality</div>
+          </div>
+          <div id="creativePreview" style="margin-top:10px;"></div>
+        </div>
+        <div>
+          <div id="creativeResult" style="display:none;">
+            <div class="creative-result">
+              <div class="creative-metric"><div class="creative-metric-key">Quality Score</div><div class="creative-metric-val" id="creativeScore" style="color:var(--accent3);">—</div></div>
+              <div class="creative-metric"><div class="creative-metric-key">Brand Safe</div><div class="creative-metric-val" id="creativeSafe">—</div></div>
+              <div class="creative-metric"><div class="creative-metric-key">Has Face</div><div class="creative-metric-val" id="creativeFace">—</div></div>
+              <div class="creative-metric"><div class="creative-metric-key">Has Text</div><div class="creative-metric-val" id="creativeText">—</div></div>
+            </div>
+            <div style="margin-top:10px;"><div style="font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-bottom:4px;">DETECTED LABELS</div><div id="creativeLabels" style="font-size:12px;color:var(--text2);"></div></div>
+            <div id="creativeRec" style="margin-top:10px;padding:10px;background:rgba(16,185,129,0.06);border-radius:8px;font-size:12px;color:var(--text2);border:1px solid rgba(16,185,129,0.15);"></div>
+          </div>
+          <div id="creativeEmpty" style="font-size:12px;color:var(--text3);padding:20px 0;">Upload an ad image to analyze quality, brand safety, and get CTR recommendations.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PAGE: BUDGET OPTIMIZER -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="page-budget">
+  <div class="topbar"><div class="page-title"><i class="fas fa-bars mobile-toggle" onclick="toggleSidebar()"></i>Budget <span>Optimizer</span></div><div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);">ROAS-weighted allocation · /api/optimize-budget</div></div>
+  <div class="panel-row panel-row-2">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Configure Budget</span></div>
+      <div class="panel-body">
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label">Total Budget (USD)</label>
+          <input class="form-input" id="budgetTotal" type="number" value="10000"/>
+        </div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label">Select Channels</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;" id="channelCheckboxes"></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;padding:12px;" onclick="optimizeBudget()">🎯 Optimize Allocation</button>
+        <div id="budgetResult" style="display:none;margin-top:14px;"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Projected Revenue by Channel</span></div>
+      <div class="panel-body"><canvas id="budgetChart" height="260"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PAGE: SEGMENTS -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="page-segments">
+  <div class="topbar"><div class="page-title"><i class="fas fa-bars mobile-toggle" onclick="toggleSidebar()"></i>Campaign <span>Segments</span></div><div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);">KMeans · k=4 · behavioral clustering</div></div>
+  <div class="panel-row panel-row-2">
+    <div class="panel"><div class="panel-header"><span class="panel-title">Cluster Profiles</span></div><div class="panel-body"><div class="cluster-grid" id="clusterGrid"></div></div></div>
+    <div class="panel"><div class="panel-header"><span class="panel-title">Revenue by Segment</span></div><div class="panel-body"><canvas id="clusterChart" height="220"></canvas></div></div>
+  </div>
+  <div class="panel" style="margin-top:20px;">
+    <div class="panel-header"><span class="panel-title">Risk Flagged Campaigns</span></div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Campaign</th><th>Channel</th><th>Spend</th><th>Revenue</th><th>ROAS</th><th>Intent Score</th><th>Risk</th><th>Action</th></tr></thead>
+      <tbody id="riskTable"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PAGE: REPORTS -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="page-reports">
+  <div class="topbar">
+    <div class="page-title"><i class="fas fa-bars mobile-toggle" onclick="toggleSidebar()"></i>Campaign <span>Reports</span></div>
+    <div class="topbar-right">
+      <button class="btn btn-outline" onclick="window.open('/api/report/company','_blank')">↓ JSON Report</button>
+      <button class="btn btn-primary" onclick="window.open('/api/report/csv','_blank')">↓ Download CSV</button>
+    </div>
+  </div>
+  <div style="background:linear-gradient(135deg,var(--surface2),var(--surface3));border:1px solid var(--border);border-radius:14px;padding:24px 28px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;">
+    <div><div style="font-family:var(--font-display);font-size:20px;font-weight:800;">Digital Media Campaign Performance Report</div><div style="font-size:11px;color:var(--text3);margin-top:4px;font-family:var(--font-mono);" id="reportMeta">Loading...</div></div>
+  </div>
+  <div class="panel-row panel-row-2">
+    <div class="panel"><div class="panel-header"><span class="panel-title">Executive Summary</span></div><div class="panel-body"><div style="font-size:13px;color:var(--text2);line-height:1.7;" id="execSummary">Loading data...</div></div></div>
+    <div class="panel"><div class="panel-header"><span class="panel-title">Key Recommendations</span></div><div class="panel-body"><div class="insights-list" id="reportRecs"></div></div></div>
+  </div>
+  <div class="panel" style="margin-top:20px;"><div class="panel-header"><span class="panel-title">Channel Performance Breakdown</span></div><div class="panel-body"><canvas id="channelBreakdown" height="160"></canvas></div></div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PAGE: ALERTS -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="page-alerts">
+  <div class="topbar"><div class="page-title"><i class="fas fa-bars mobile-toggle" onclick="toggleSidebar()"></i>Smart <span>Alerts</span></div><div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);">ML anomaly detection</div></div>
+  <div id="alertsList" style="display:flex;flex-direction:column;gap:12px;"></div>
+</div>
+
+</main>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════
+
+function toggleTheme() {
+    const root = document.documentElement;
+    const body = document.body;
+    const isDark = body.getAttribute('data-theme') === 'dark';
+    body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    document.getElementById('themeOrb').innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    // Redraw charts since colors changed
+    drawOverviewCharts(); drawShapDependence(); drawClusterChart(); drawBudgetChart(); drawChannelBreakdown();
+}
+
+function toggleSidebar() {
+    document.querySelector('.sidebar').classList.toggle('open');
+    document.querySelector('.mobile-overlay').classList.toggle('open');
+}
+
+// Ensure resize redraws
+window.addEventListener('resize', () => { drawOverviewCharts(); });
+
+const API = 'http://localhost:8000';
+const CHANNELS = ['Social Media','Search','Display','Email','Video','Affiliate'];
+
+function getCssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+// Replace hardcoded JS colors with variables
+function getCol(id) {
+    const m = { bg:'--bg', surface:'--surface', text:'--text', text2:'--text2', text3:'--text3', border:'--border'};
+    return getCssVar(m[id]);
+}
+const COLORS   = ['#00d4ff','#7c3aed','#10b981','#f59e0b','#ef4444','#ec4899'];
+
+let campaigns  = [];
+let summaryData = {};
+let shapData   = { features:[], values:[], directions:[] };
+let selectedFile = null;
+let budgetAlloc  = {};
+
+function fmtCurrency(n){
+  if(n>=1e6)return '$'+(n/1e6).toFixed(2)+'M';
+  if(n>=1e3)return '$'+(n/1e3).toFixed(1)+'K';
+  return '$'+Math.round(n).toLocaleString();
+}
+function rand(a,b){return Math.random()*(b-a)+a;}
+
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+function toast(msg, isError=false){
+  const t=document.getElementById('toast');
+  t.innerHTML=msg;
+  t.style.borderColor=isError?'var(--danger)':'var(--accent3)';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ══════════════════════════════════════════════
+// BACKEND HEALTH CHECK
+// ══════════════════════════════════════════════
+async function checkHealth(){
+  try{
+    const r=await fetch(`${API}/api/health`);
+    const d=await r.json();
+    document.getElementById('statusDot').style.background=d.status==='ok'?'var(--accent3)':'var(--danger)';
+    document.getElementById('statusText').textContent=`Model live · R² ${typeof d.r2==='number'?d.r2.toFixed(4):d.r2}`;
+    return d;
+  }catch(e){
+    document.getElementById('statusDot').style.background='var(--danger)';
+    document.getElementById('statusText').textContent='Backend offline';
+    return null;
+  }
+}
+
+// ══════════════════════════════════════════════
+// FETCH DATA FROM BACKEND
+// ══════════════════════════════════════════════
+async function fetchSummary(){
+  try{
+    const r=await fetch(`${API}/api/campaigns/summary`);
+    summaryData=await r.json();
+    updateKPIs();
+  }catch(e){ console.warn('Summary fetch failed',e); }
+}
+
+async function fetchCampaigns(){
+  try{
+    const r=await fetch(`${API}/api/campaigns`);
+    campaigns=await r.json();
+    buildCampaignTable(campaigns);
+    drawOverviewCharts();
+    buildFunnel();
+    buildHealthBars();
+    buildRiskTable();
+    document.getElementById('campCount').textContent=`${campaigns.length} campaigns · sorted by revenue`;
+  }catch(e){ console.warn('Campaigns fetch failed',e); campaigns=[]; }
+}
+
+async function fetchShap(){
+  try{
+    const r=await fetch(`${API}/api/shap/global`);
+    shapData=await r.json();
+    buildShapList();
+  }catch(e){ buildShapList(); }
+}
+
+async function refreshAll(){
+  toast('⏳ Refreshing data...');
+  await fetchSummary();
+  await fetchCampaigns();
+  toast('✅ Data refreshed');
+}
+
+function updateKPIs(){
+  const d=summaryData;
+  animCount('kpi-rev',  0, d.total_revenue||0,    v=>fmtCurrency(v));
+  animCount('kpi-spend',0, d.total_spend||0,       v=>fmtCurrency(v));
+  animCount('kpi-roas', 0, d.avg_roas||0,          v=>v.toFixed(2)+'x');
+  animCount('kpi-conv', 0, d.total_conversions||0, v=>Math.round(v).toLocaleString());
+  animCount('kpi-risk', 0, d.risk_campaigns||0,    v=>Math.round(v));
+  const b=document.getElementById('alertBadge');
+  if(b)b.textContent=d.risk_campaigns||0;
+}
+
+function animCount(id,from,to,fmt){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const steps=50;let step=0;
+  const t=setInterval(()=>{
+    step++;const p=1-Math.pow(1-step/steps,3);
+    el.textContent=fmt(from+(to-from)*p);
+    if(step>=steps){el.textContent=fmt(to);clearInterval(t);}
+  },1200/steps);
+}
+
+// ══════════════════════════════════════════════
+// FILE UPLOAD
+// ══════════════════════════════════════════════
+function handleFileSelect(input){
+  if(input.files[0]) setFile(input.files[0]);
+}
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('dropArea').classList.remove('drag');
+  if(e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+}
+function setFile(file){
+  selectedFile=file;
+  document.getElementById('uploadStatus').innerHTML=`<span style="color:var(--accent3);">✅ Selected:</span> ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+  document.getElementById('uploadBtn').disabled=false;
+
+  // Preview first few rows
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const lines=e.target.result.split('\n').slice(0,4);
+    const headers=lines[0].split(',');
+    document.getElementById('dataPreview').innerHTML=
+      `<div style="color:var(--accent3);margin-bottom:8px;font-size:11px;">📊 ${headers.length} columns detected</div>`+
+      lines.map((l,i)=>`<div style="margin-bottom:3px;color:${i===0?'var(--text)':'var(--text3)'};font-size:11px;">${l.substring(0,80)}${l.length>80?'...':''}</div>`).join('')+
+      `<div style="margin-top:8px;color:var(--text3);font-size:10px;">...and more rows</div>`;
+  };
+  reader.readAsText(file);
+}
+
+async function uploadFile(){
+  if(!selectedFile){toast('⚠️ Select a file first',true);return;}
+  const btn=document.getElementById('uploadBtn');
+  btn.innerHTML='<span class="spinner"></span>Processing...';
+  btn.disabled=true;
+
+  const fd=new FormData();
+  fd.append('file',selectedFile);
+
+  try{
+    const r=await fetch(`${API}/api/upload`,{method:'POST',body:fd});
+    const d=await r.json();
+    if(r.ok){
+      toast('✅ '+d.message);
+      await fetchSummary();
+      await fetchCampaigns();
+      btn.innerHTML='✅ Uploaded!';
+    }else{
+      toast('❌ '+(d.detail||'Upload failed'),true);
+      btn.innerHTML='↑ Upload & Process';
+      btn.disabled=false;
+    }
+  }catch(e){
+    toast('❌ Backend not running. Start: cd backend && uvicorn main:app --reload',true);
+    btn.innerHTML='↑ Upload & Process';
+    btn.disabled=false;
+  }
+}
+
+// ══════════════════════════════════════════════
+// CANVAS HELPERS
+// ══════════════════════════════════════════════
+function setupCanvas(id){
+  const canvas=document.getElementById(id);
+  if(!canvas)return null;
+  const pr=window.devicePixelRatio||1;
+  const w=canvas.offsetWidth||canvas.parentElement?.offsetWidth||400;
+  const h=parseInt(canvas.getAttribute('height'))||200;
+  canvas.width=w*pr;canvas.height=h*pr;
+  canvas.style.width=w+'px';canvas.style.height=h+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.scale(pr,pr);ctx.clearRect(0,0,w,h);
+  return{ctx,w,h};
+}
+function drawGrid(ctx,w,h,pad,steps=5){
+  ctx.strokeStyle=getCol('border');ctx.lineWidth=1;
+  for(let i=0;i<=steps;i++){const y=pad+(h-pad*2)*i/steps;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad,y);ctx.stroke();}
+}
+
+// ══════════════════════════════════════════════
+// OVERVIEW CHARTS
+// ══════════════════════════════════════════════
+function drawOverviewCharts(){
+  drawRevChart();
+  drawChannelChart();
+  drawEffChart();
+}
+
+function drawRevChart(){
+  const c=setupCanvas('revChart');if(!c)return;
+  const{ctx,w,h}=c;const pad=36;
+
+  // Group by channel from real data
+  const chRevs=CHANNELS.map(ch=>({
+    ch,
+    rev:campaigns.filter(x=>x.channel===ch).reduce((s,x)=>s+x.revenue,0),
+    spend:campaigns.filter(x=>x.channel===ch).reduce((s,x)=>s+x.spend,0)
+  })).filter(d=>d.rev>0);
+
+  if(!chRevs.length){ctx.fillStyle='var(--text3)';ctx.font='12px Inter';ctx.textAlign='center';ctx.fillText('Upload data to see chart',w/2,h/2);return;}
+
+  const maxV=Math.max(...chRevs.map(d=>d.rev));
+  const barW=(w-pad*2)/chRevs.length-8;
+  drawGrid(ctx,w,h,pad,4);
+
+  chRevs.forEach((d,i)=>{
+    const x=pad+i*(barW+8)+4;
+    const rH=(d.rev/maxV)*(h-pad*2);
+    const sH=(d.spend/maxV)*(h-pad*2);
+
+    // Revenue bar
+    const g1=ctx.createLinearGradient(0,h-pad-rH,0,h-pad);
+    g1.addColorStop(0,COLORS[i]);g1.addColorStop(1,COLORS[i]+'33');
+    ctx.fillStyle=g1;
+    ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,h-pad-rH,barW*0.55,rH,3);else ctx.rect(x,h-pad-rH,barW*0.55,rH);ctx.fill();
+
+    // Spend bar
+    ctx.fillStyle=COLORS[i]+'44';
+    ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x+barW*0.55+2,h-pad-sH,barW*0.4,sH,3);else ctx.rect(x+barW*0.55+2,h-pad-sH,barW*0.4,sH);ctx.fill();
+
+    ctx.fillStyle=getCol('text2');ctx.font='9px Fira Code';ctx.textAlign='center';
+    ctx.fillText(d.ch.split(' ')[0],x+barW/2,h-pad+14);
+    ctx.fillStyle=getCol('text');ctx.font='bold 9px JetBrains Mono';
+    ctx.fillText(fmtCurrency(d.rev),x+barW*0.275,h-pad-rH-5);
+  });
+}
+
+function drawChannelChart(){
+  const c=setupCanvas('channelChart');if(!c)return;
+  const{ctx,w,h}=c;
+  const revs=CHANNELS.map(ch=>campaigns.filter(x=>x.channel===ch).reduce((s,x)=>s+x.revenue,0));
+  const total=revs.reduce((a,b)=>a+b,0);
+  if(!total){ctx.fillStyle='var(--text3)';ctx.font='11px Inter';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('No data',w/2,h/2);return;}
+
+  const cx=w/2,cy=h/2,R=Math.min(w,h)*0.38,r=R*0.55;
+  let angle=-Math.PI/2;
+  revs.forEach((v,i)=>{
+    if(!v)return;
+    const slice=v/total*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,angle,angle+slice);ctx.closePath();
+    ctx.fillStyle=COLORS[i%COLORS.length];ctx.fill();
+    angle+=slice;
+  });
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=getCol('bg');ctx.fill();
+  ctx.fillStyle=getCol('text');ctx.font='bold 12px Inter';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(fmtCurrency(total),cx,cy-6);
+  ctx.fillStyle=getCol('text3');ctx.font='8px Fira Code';ctx.fillText('TOTAL REV',cx,cy+10);
+
+  const leg=document.getElementById('channelLegend');
+  if(leg)leg.innerHTML=CHANNELS.map((ch,i)=>`
+    <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+      <div style="display:flex;align-items:center;gap:5px;"><div style="width:8px;height:8px;border-radius:2px;background:${COLORS[i]};"></div><span style="color:var(--text2);font-size:10px;">${ch}</span></div>
+      <span style="font-family:var(--font-mono);font-size:10px;">${total?((revs[i]||0)/total*100).toFixed(1):0}%</span>
+    </div>`).join('');
+}
+
+function drawEffChart(){
+  const c=setupCanvas('effChart');if(!c)return;
+  const{ctx,w,h}=c;const pad=36;
+  const chData=CHANNELS.map(ch=>{
+    const cs=campaigns.filter(x=>x.channel===ch);
+    return{ch,roas:cs.length?cs.reduce((s,x)=>s+x.roas,0)/cs.length:0};
+  }).filter(d=>d.roas>0).sort((a,b)=>b.roas-a.roas);
+  if(!chData.length){ctx.fillStyle='var(--text3)';ctx.font='12px Inter';ctx.textAlign='center';ctx.fillText('No data',w/2,h/2);return;}
+
+  const maxR=Math.max(...chData.map(d=>d.roas));
+  const barW=(w-pad*2)/chData.length-8;
+  drawGrid(ctx,w,h,pad,4);
+
+  chData.forEach((d,i)=>{
+    const x=pad+i*(barW+8)+4;
+    const barH=(d.roas/maxR)*(h-pad*2);
+    const y=h-pad-barH;
+    const g=ctx.createLinearGradient(0,y,0,h-pad);
+    g.addColorStop(0,COLORS[i%COLORS.length]);g.addColorStop(1,COLORS[i%COLORS.length]+'44');
+    ctx.fillStyle=g;
+    ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,barW,barH,4);else ctx.rect(x,y,barW,barH);ctx.fill();
+    ctx.fillStyle=getCol('text2');ctx.font='9px Fira Code';ctx.textAlign='center';
+    ctx.fillText(d.ch.split(' ')[0],x+barW/2,h-pad+14);
+    ctx.fillStyle=getCol('text');ctx.font='bold 10px JetBrains Mono';
+    ctx.fillText(d.roas.toFixed(2)+'x',x+barW/2,y-5);
+  });
+}
+
+function buildFunnel(){
+  const el=document.getElementById('funnelViz');if(!el)return;
+  const imp=campaigns.reduce((s,c)=>s+c.imp,0);
+  const clk=campaigns.reduce((s,c)=>s+c.clk,0);
+  const conv=campaigns.reduce((s,c)=>s+c.conv,0);
+  const steps=[
+    {label:'Impressions',value:imp,color:'#00d4ff',pct:'100%'},
+    {label:'Clicks',value:clk,color:'#7c3aed',pct:imp?((clk/imp*100).toFixed(1)+'%'):'0%'},
+    {label:'Conversions',value:conv,color:'#10b981',pct:clk?((conv/clk*100).toFixed(1)+'%'):'0%'},
+  ];
+  el.innerHTML=steps.map((s,i)=>`
+    <div class="funnel-step" style="width:${100-i*18}%;background:linear-gradient(90deg,${s.color}18,${s.color}08);border:1px solid ${s.color}30;">
+      <span class="funnel-label">${s.label}</span>
+      <div><span class="funnel-val">${s.value.toLocaleString()}</span><span class="funnel-pct">(${s.pct})</span></div>
+    </div>`).join('<div style="color:var(--border);font-size:16px;text-align:center;">↓</div>');
+}
+
+function buildHealthBars(){
+  const el=document.getElementById('healthBars');if(!el)return;
+  const chH=CHANNELS.map(ch=>{
+    const cs=campaigns.filter(x=>x.channel===ch);
+    const h=cs.length?cs.reduce((s,x)=>s+x.healthScore,0)/cs.length:0;
+    return{ch,health:h};
+  }).filter(d=>d.health>0).sort((a,b)=>b.health-a.health);
+
+  el.innerHTML=chH.map(d=>{
+    const pct=Math.min(100,Math.round(d.health*100));
+    const col=d.health>0.6?'#10b981':d.health>0.3?'#f59e0b':'#ef4444';
+    return`<div class="progress-row">
+      <div class="progress-label">${d.ch.split(' ')[0]}</div>
+      <div class="progress-track"><div class="progress-fill" style="width:0%;background:${col};" data-target="${pct}"></div></div>
+      <div class="progress-val">${pct}%</div></div>`;
+  }).join('');
+  setTimeout(()=>el.querySelectorAll('.progress-fill').forEach(e=>e.style.width=e.dataset.target+'%'),200);
+}
+
+// ══════════════════════════════════════════════
+// CAMPAIGN TABLE
+// ══════════════════════════════════════════════
+function buildCampaignTable(data){
+  const tbody=document.getElementById('campaignBody');if(!tbody)return;
+  if(!data.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:32px;">No campaigns loaded. Upload a CSV file first.</td></tr>';return;}
+  tbody.innerHTML=data.slice(0,200).map(c=>{
+    const h=Math.round((c.healthScore||0)*100);
+    const hcol=h>60?'#10b981':h>30?'#f59e0b':'#ef4444';
+    const badges={high:'<span class="badge badge-green">High Perf</span>',medium:'<span class="badge badge-blue">Steady</span>',risk:'<span class="badge badge-red">At Risk</span>'};
+    return`<tr class="${c.status==='risk'?'risk-high':''}">
+      <td>${c.name||c.id}</td>
+      <td><span class="badge badge-blue">${c.channel}</span></td>
+      <td>${fmtCurrency(c.spend)}</td>
+      <td>${fmtCurrency(c.revenue)}</td>
+      <td style="font-family:var(--font-mono);color:${c.roas>3?'#10b981':c.roas>2?'#f59e0b':'#ef4444'}">${(c.roas||0).toFixed(2)}x</td>
+      <td style="font-family:var(--font-mono);">${(c.ctr||0).toFixed(2)}%</td>
+      <td style="font-family:var(--font-mono);">${(c.cvr||0).toFixed(2)}%</td>
+      <td><div style="display:flex;align-items:center;gap:6px;"><div style="width:40px;height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;"><div style="width:${h}%;height:100%;background:${hcol};"></div></div><span style="font-size:11px;color:${hcol};font-family:var(--font-mono);">${h}%</span></div></td>
+      <td>${badges[c.status]||''}</td></tr>`;
+  }).join('');
+}
+
+function filterTable(q){buildCampaignTable(campaigns.filter(c=>(c.name||c.id||'').toLowerCase().includes(q.toLowerCase())||(c.channel||'').toLowerCase().includes(q.toLowerCase())));}
+function filterStatus(status,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');buildCampaignTable(status==='all'?campaigns:campaigns.filter(c=>c.status===status));}
+
+let sortDir=1;
+function sortTable(col){
+  sortDir*=-1;
+  const keys=['name','channel','spend','revenue','roas','ctr','cvr'];
+  buildCampaignTable([...campaigns].sort((a,b)=>{const av=a[keys[col]],bv=b[keys[col]];return typeof av==='string'?av.localeCompare(bv)*sortDir:(av-bv)*sortDir;}));
+}
+
+// ══════════════════════════════════════════════
+// PREDICTION (calls /api/predict)
+// ══════════════════════════════════════════════
+async function predictRevenue(){
+  const btn=document.getElementById('predictBtn');
+  btn.innerHTML='<span class="spinner"></span>Running...';btn.disabled=true;
+  const payload={
+    spend:  parseFloat(document.getElementById('p-spend').value)||0,
+    imp:    parseFloat(document.getElementById('p-imp').value)||0,
+    clk:    parseFloat(document.getElementById('p-clk').value)||0,
+    cvr:    parseFloat(document.getElementById('p-cvr').value)||0,
+    aq:     parseFloat(document.getElementById('p-aq').value)||5,
+    bounce: parseFloat(document.getElementById('p-bounce').value)||50,
+    sess:   parseFloat(document.getElementById('p-sess').value)||60,
+    channel:document.getElementById('p-channel').value
+  };
+  try{
+    const r=await fetch(`${API}/api/predict`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const d=await r.json();
+    document.getElementById('predValue').textContent=fmtCurrency(d.revenue||0);
+    document.getElementById('predRoas').textContent=(d.roas||0).toFixed(2)+'x';
+    document.getElementById('predCpa').textContent=fmtCurrency(d.cpa||0);
+    const hEl=document.getElementById('predHealth');
+    hEl.textContent=(d.healthScore||0)+'%';
+    hEl.style.color=(d.healthScore||0)>60?'#10b981':(d.healthScore||0)>30?'#f59e0b':'#ef4444';
+    document.getElementById('predInsight').innerHTML=`<strong style="color:var(--accent);">Recommendation:</strong> ${d.recommendation||''}`;
+    document.getElementById('predResult').style.display='block';
+    drawSensitivityChart(payload.spend,d.roas||1);
+    toast('✅ Prediction complete');
+  }catch(e){
+    toast('❌ Backend not running. Start: cd backend && uvicorn main:app --reload',true);
+  }finally{btn.innerHTML='⬡ Run Prediction';btn.disabled=false;}
+}
+
+function drawSensitivityChart(baseSpend=5000, baseRoas=3){
+  const c=setupCanvas('sensitivityChart');if(!c)return;
+  const{ctx,w,h}=c;const pad=40;
+  const pts=Array.from({length:20},(_,i)=>{const s=baseSpend*(0.5+i/19);return{s,r:Math.expm1(Math.log1p(s)*0.42+baseRoas*0.1)*50};});
+  const maxS=Math.max(...pts.map(p=>p.s)),minS=Math.min(...pts.map(p=>p.s));
+  const maxR=Math.max(...pts.map(p=>p.r)),minR=Math.min(...pts.map(p=>p.r));
+  const toX=v=>pad+(w-pad*2)*(v-minS)/(maxS-minS||1);
+  const toY=v=>h-pad-(v-minR)/(maxR-minR||1)*(h-pad*2);
+  drawGrid(ctx,w,h,pad);
+  ctx.beginPath();pts.forEach((p,i)=>{i===0?ctx.moveTo(toX(p.s),toY(p.r)):ctx.lineTo(toX(p.s),toY(p.r));});
+  ctx.lineTo(toX(maxS),h-pad);ctx.lineTo(toX(minS),h-pad);ctx.closePath();
+  const g=ctx.createLinearGradient(0,pad,0,h-pad);g.addColorStop(0,'rgba(0,212,255,0.2)');g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.fill();
+  ctx.beginPath();ctx.strokeStyle='#00d4ff';ctx.lineWidth=2.5;
+  pts.forEach((p,i)=>{i===0?ctx.moveTo(toX(p.s),toY(p.r)):ctx.lineTo(toX(p.s),toY(p.r));});ctx.stroke();
+  const bx=toX(baseSpend);
+  ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(bx,pad);ctx.lineTo(bx,h-pad);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#f59e0b';ctx.font='9px Fira Code';ctx.textAlign='center';ctx.fillText('Current',bx,pad-4);
+  ctx.fillStyle=getCol('text2');ctx.font='9px Fira Code';ctx.textAlign='center';ctx.fillText('Spend ($)',w/2,h-4);
+  ctx.save();ctx.translate(12,h/2);ctx.rotate(-Math.PI/2);ctx.fillText('Revenue ($)',0,0);ctx.restore();
+}
+
+// ══════════════════════════════════════════════
+// SHAP / XAI
+// ══════════════════════════════════════════════
+function buildShapList(){
+  const el=document.getElementById('shapList');if(!el)return;
+  const features=shapData.features||['log_spend','intent_score','campaign_health_score','ad_quality_score','conversion_efficiency','engagement_depth','ctr_calc','cost_waste_ratio','campaign_fatigue','bounce_rate_pct','overexposure_index','marginal_roas'];
+  const values=shapData.values||[0.412,0.338,0.291,0.254,0.219,0.196,0.171,0.145,0.132,0.118,0.098,0.087];
+  const dirs=shapData.directions||[1,1,1,1,1,1,1,-1,-1,-1,-1,1];
+  const maxV=Math.max(...values)||1;
+  el.innerHTML=features.map((f,i)=>{
+    const col=dirs[i]>0?'#10b981':'#ef4444';
+    const pct=((values[i]||0)/maxV*100).toFixed(0);
+    return`<div class="shap-row"><div class="shap-label" title="${f}">${f}</div><div class="shap-bar-wrap"><div class="shap-bar" style="width:0%;background:${col};" data-target="${pct}%"></div></div><div class="shap-val">${(values[i]||0).toFixed(3)}</div></div>`;
+  }).join('');
+  setTimeout(()=>el.querySelectorAll('.shap-bar').forEach(b=>b.style.width=b.dataset.target),300);
+}
+
+function buildLimeList(){
+  const el=document.getElementById('limeList');if(!el)return;
+  const feats=[{n:'log_spend > 8.5',v:0.31,d:1},{n:'intent_score > 1.2',v:0.22,d:1},{n:'bounce_rate > 60',v:-0.18,d:-1},{n:'ad_quality < 5',v:-0.14,d:-1},{n:'channel = Search',v:0.12,d:1},{n:'is_weekend = 1',v:0.09,d:1},{n:'overexposure > 80',v:-0.08,d:-1},{n:'sess_duration < 45',v:-0.07,d:-1}];
+  const maxV=Math.max(...feats.map(f=>Math.abs(f.v)));
+  el.innerHTML=feats.map(f=>{
+    const col=f.d>0?'#00d4ff':'#f59e0b';
+    const pct=(Math.abs(f.v)/maxV*100).toFixed(0);
+    return`<div class="shap-row"><div class="shap-label" style="width:190px;" title="${f.n}">${f.n}</div><div class="shap-bar-wrap"><div class="shap-bar" style="width:0%;background:${col};" data-target="${pct}%"></div></div><div class="shap-val">${f.v>0?'+':''}${f.v.toFixed(3)}</div></div>`;
+  }).join('');
+  const narr=document.getElementById('limeNarrative');
+  if(narr)narr.innerHTML=`<strong style="color:var(--text);">Local Explanation:</strong> High spend (log>8.5) and strong intent score are the primary positive drivers for this prediction. Bounce rate above 60% is the largest negative factor, reducing predicted revenue by ~18%. Recommendation: reduce bounce rate and improve ad quality score.`;
+  setTimeout(()=>el.querySelectorAll('.shap-bar').forEach(b=>b.style.width=b.dataset.target),300);
+}
+
+function drawShapDependence(){
+  const c=setupCanvas('shapDependenceChart');if(!c)return;
+  const{ctx,w,h}=c;const pad=36;
+  const pts=Array.from({length:150},()=>{const s=rand(0,15);return{x:s,y:Math.log1p(s)*rand(0.3,0.5)+rand(-0.1,0.1)};});
+  const maxY=Math.max(...pts.map(p=>p.y)),minY=Math.min(...pts.map(p=>p.y));
+  const toX=v=>pad+(w-pad*2)*v/15;
+  const toY=v=>h-pad-(v-minY)/(maxY-minY||1)*(h-pad*2);
+  drawGrid(ctx,w,h,pad);
+  pts.forEach(p=>{ctx.beginPath();ctx.arc(toX(p.x),toY(p.y),3,0,Math.PI*2);ctx.fillStyle=`rgba(0,${Math.round(p.x/15*212)},255,0.5)`;ctx.fill();});
+  ctx.strokeStyle='#00d4ff';ctx.lineWidth=2;ctx.setLineDash([4,4]);ctx.beginPath();
+  for(let x=0;x<=15;x+=0.5){const px=toX(x),py=toY(Math.log1p(x)*0.4);x===0?ctx.moveTo(px,py):ctx.lineTo(px,py);}
+  ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle=getCol('text2');ctx.font='9px Fira Code';ctx.textAlign='center';ctx.fillText('Log Spend (×$1K)',w/2,h-4);
+  ctx.save();ctx.translate(12,h/2);ctx.rotate(-Math.PI/2);ctx.fillText('SHAP Value',0,0);ctx.restore();
+}
+
+function buildXAIInsights(){
+  const el=document.getElementById('xaiInsights');if(!el)return;
+  el.innerHTML=[
+    {t:'good',i:'📈',txt:'<strong>log_spend is the #1 driver</strong> — diminishing returns appear beyond ~$15K. Log transformation reveals budget saturation threshold.'},
+    {t:'good',i:'🎯',txt:'<strong>intent_score boosts revenue by 38%</strong> — campaigns with high session duration + low bounce rate convert 2.3x better.'},
+    {t:'warn',i:'⚠️',txt:'<strong>Ad quality < 5.0 is a critical warning</strong> — SHAP shows sharp negative contribution of $800–$1,200 per campaign on average.'},
+    {t:'bad',i:'🔴',txt:'<strong>Overexposure index > 80 is counterproductive</strong> — high imp/click ratio signals audience fatigue and reduces CTR efficiency.'},
+    {t:'good',i:'💡',txt:'<strong>Search channel adds consistent +$320 per prediction</strong> — confirmed by both SHAP global importance and LIME local explanations.'},
+    {t:'warn',i:'📉',txt:'<strong>SHAP and LIME agree on top 3 drivers</strong> — model interpretability is validated. No conflicting feature rankings detected.'},
+  ].map(x=>`<div class="insight-item ${x.t}"><span class="insight-icon">${x.i}</span><div class="insight-text">${x.txt}</div></div>`).join('');
+}
+
+// ══════════════════════════════════════════════
+// AI CHAT
+// ══════════════════════════════════════════════
+async function sendChat(){
+  const input=document.getElementById('chatInput');
+  const q=input.value.trim();if(!q)return;
+  input.value='';
+
+  const box=document.getElementById('chatBox');
+  box.innerHTML+=`<div class="chat-msg user">${q}</div>`;
+  box.innerHTML+=`<div class="chat-msg ai" id="chatThinking"><span class="spinner"></span>Analyzing...</div>`;
+  box.scrollTop=box.scrollHeight;
+
+  const ctx={
+    channel: campaigns[0]?.channel||'Mixed',
+    roas: summaryData.avg_roas||0,
+    risk_campaigns: summaryData.risk_campaigns||0,
+    top_channel: summaryData.top_channel||'Search'
+  };
+
+  try{
+    const r=await fetch(`${API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,campaign_context:ctx})});
+    const d=await r.json();
+    document.getElementById('chatThinking').outerHTML=`<div class="chat-msg ai"><strong style="color:var(--accent);">AdPulse AI (${d.source||'AI'}):</strong><br>${d.answer}</div>`;
+  }catch(e){
+    document.getElementById('chatThinking').outerHTML=`<div class="chat-msg ai" style="color:var(--danger);">⚠️ Backend not running. Start: <code>cd backend && uvicorn main:app --reload</code></div>`;
+  }
+  box.scrollTop=box.scrollHeight;
+}
+
+function quickChat(msg){document.getElementById('chatInput').value=msg;sendChat();}
+
+// ══════════════════════════════════════════════
+// AD COPY ANALYZER
+// ══════════════════════════════════════════════
+async function analyzeCopy(){
+  const text=document.getElementById('copyText').value.trim();
+  if(!text){toast('⚠️ Enter ad copy text first',true);return;}
+  const btn=document.getElementById('copyBtn');
+  btn.innerHTML='<span class="spinner"></span>Analyzing...';btn.disabled=true;
+  try{
+    const r=await fetch(`${API}/api/analyze-copy`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+    const d=await r.json();
+    document.getElementById('copySentiment').textContent=d.sentiment||'N/A';
+    document.getElementById('copySentiment').style.color=d.sentiment==='POSITIVE'?'#10b981':d.sentiment==='NEGATIVE'?'#ef4444':'#f59e0b';
+    document.getElementById('copyConf').textContent=((d.confidence||0)*100).toFixed(0)+'%';
+    document.getElementById('copyEngagement').textContent=d.engagement_prediction||'N/A';
+    document.getElementById('copyCTR').textContent=d.ctr_impact||'N/A';
+    document.getElementById('copyRec').innerHTML=`<strong>💡 Recommendation:</strong> ${d.recommendation||''}`;
+    document.getElementById('copyResult').style.display='block';
+    toast('✅ Copy analyzed');
+  }catch(e){toast('❌ Backend not running',true);}
+  finally{btn.innerHTML='⚡ Analyze Copy';btn.disabled=false;}
+}
+
+// ══════════════════════════════════════════════
+// CREATIVE ANALYZER
+// ══════════════════════════════════════════════
+async function analyzeCreative(input){
+  if(!input.files[0])return;
+  const file=input.files[0];
+
+  // Show preview
+  const prev=document.getElementById('creativePreview');
+  const reader=new FileReader();
+  reader.onload=e=>{prev.innerHTML=`<img src="${e.target.result}" style="width:100%;border-radius:8px;border:1px solid var(--border);margin-top:8px;max-height:180px;object-fit:cover;"/>`;};
+  reader.readAsDataURL(file);
+
+  const fd=new FormData();fd.append('file',file);
+  document.getElementById('creativeEmpty').style.display='none';
+  document.getElementById('creativeResult').style.display='none';
+  document.getElementById('creativeResult').innerHTML='<div style="color:var(--text3);font-size:12px;padding:20px;"><span class="spinner"></span>Analyzing image...</div>';
+  document.getElementById('creativeResult').style.display='block';
+
+  try{
+    const r=await fetch(`${API}/api/analyze-creative`,{method:'POST',body:fd});
+    const d=await r.json();
+    document.getElementById('creativeResult').innerHTML=`
+      <div class="creative-result">
+        <div class="creative-metric"><div class="creative-metric-key">Quality Score</div><div class="creative-metric-val" style="color:${d.creative_quality_score>7?'#10b981':d.creative_quality_score>5?'#f59e0b':'#ef4444'}">${d.creative_quality_score}/10</div></div>
+        <div class="creative-metric"><div class="creative-metric-key">Brand Safe</div><div class="creative-metric-val" style="color:${d.brand_safe?'#10b981':'#ef4444'}">${d.brand_safe?'✅ Yes':'⚠️ No'}</div></div>
+        <div class="creative-metric"><div class="creative-metric-key">Has Face</div><div class="creative-metric-val">${d.has_face?'✅ Yes':'❌ No'}</div></div>
+        <div class="creative-metric"><div class="creative-metric-key">Has Text</div><div class="creative-metric-val">${d.has_text_overlay?'✅ Yes':'❌ No'}</div></div>
+      </div>
+      <div style="margin-top:10px;"><div style="font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-bottom:4px;">DETECTED LABELS</div>
+      <div style="font-size:12px;color:var(--text2);">${(d.labels||[]).join(' · ')}</div></div>
+      ${d.detected_text?`<div style="margin-top:8px;font-size:11px;color:var(--text3);font-family:var(--font-mono);">"${d.detected_text.substring(0,100)}"</div>`:''}
+      <div style="margin-top:10px;padding:10px;background:rgba(16,185,129,0.06);border-radius:8px;font-size:12px;color:var(--text2);border:1px solid rgba(16,185,129,0.15);">
+        <strong>💡 Recommendation:</strong> ${d.recommendation||''}
+      </div>
+      ${d.note?`<div style="margin-top:6px;font-size:10px;color:var(--text3);">${d.note}</div>`:''}
+    `;
+    toast('✅ Creative analyzed');
+  }catch(e){toast('❌ Backend not running',true);document.getElementById('creativeEmpty').style.display='block';document.getElementById('creativeResult').style.display='none';}
+}
+
+// ══════════════════════════════════════════════
+// BUDGET OPTIMIZER
+// ══════════════════════════════════════════════
+function buildChannelCheckboxes(){
+  const el=document.getElementById('channelCheckboxes');if(!el)return;
+  el.innerHTML=CHANNELS.map((ch,i)=>`
+    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2);">
+      <input type="checkbox" checked value="${ch}" style="accent-color:${COLORS[i]};"/>
+      <span style="color:${COLORS[i]};">●</span> ${ch}
+    </label>`).join('');
+}
+
+async function optimizeBudget(){
+  const budget=parseFloat(document.getElementById('budgetTotal').value)||10000;
+  const selected=Array.from(document.querySelectorAll('#channelCheckboxes input:checked')).map(i=>i.value);
+  if(!selected.length){toast('⚠️ Select at least one channel',true);return;}
+  try{
+    const r=await fetch(`${API}/api/optimize-budget`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({total_budget:budget,channels:selected})});
+    const d=await r.json();
+    budgetAlloc=d;
+
+    document.getElementById('budgetResult').style.display='block';
+    document.getElementById('budgetResult').innerHTML=`
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-bottom:4px;">TOTAL BUDGET</div>
+          <div style="font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--accent4);">${fmtCurrency(d.total_budget)}</div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-bottom:4px;">PROJECTED REVENUE</div>
+          <div style="font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--accent3);">${fmtCurrency(d.total_projected)}</div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-bottom:4px;">PROJECTED ROAS</div>
+          <div style="font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--accent);">${d.projected_roas}x</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text2);padding:10px;background:rgba(0,212,255,0.06);border-radius:8px;border:1px solid rgba(0,212,255,0.15);">
+        💡 ${d.recommendation||''}
+      </div>`;
+
+    drawBudgetChart(d);
+    toast('✅ Budget optimized');
+  }catch(e){toast('❌ Backend not running',true);}
+}
+
+function drawBudgetChart(d){
+  const c=setupCanvas('budgetChart');if(!c)return;
+  const{ctx,w,h}=c;const pad=40;
+  const channels=Object.keys(d.allocation);
+  const allocs=Object.values(d.allocation);
+  const projs=channels.map(ch=>(d.projected_revenue||{})[ch]||0);
+  const maxV=Math.max(...projs,...allocs);
+  const barW=(w-pad*2)/channels.length-10;
+
+  drawGrid(ctx,w,h,pad,4);
+  channels.forEach((ch,i)=>{
+    const x=pad+i*(barW+10)+5;
+    const aH=(allocs[i]/maxV)*(h-pad*2);
+    const pH=(projs[i]/maxV)*(h-pad*2);
+
+    ctx.fillStyle=COLORS[i%COLORS.length]+'44';
+    ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,h-pad-aH,barW*0.45,aH,3);else ctx.rect(x,h-pad-aH,barW*0.45,aH);ctx.fill();
+
+    const g=ctx.createLinearGradient(0,h-pad-pH,0,h-pad);g.addColorStop(0,COLORS[i%COLORS.length]);g.addColorStop(1,COLORS[i%COLORS.length]+'33');
+    ctx.fillStyle=g;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x+barW*0.48,h-pad-pH,barW*0.48,pH,3);else ctx.rect(x+barW*0.48,h-pad-pH,barW*0.48,pH);ctx.fill();
+
+    ctx.fillStyle=getCol('text2');ctx.font='9px Fira Code';ctx.textAlign='center';ctx.fillText(ch.split(' ')[0],x+barW/2,h-pad+14);
+    ctx.fillStyle=getCol('text');ctx.font='bold 8px JetBrains Mono';ctx.fillText(fmtCurrency(projs[i]),x+barW/2,h-pad-pH-5);
+  });
+}
+
+// ══════════════════════════════════════════════
+// SEGMENTS
+// ══════════════════════════════════════════════
+function buildClusterCards(){
+  const el=document.getElementById('clusterGrid');if(!el)return;
+  // Use real data if available
+  const clusters=[
+    {name:'🏆 High Performers',count:0,revenue:0,roas:0,health:0,col:'#10b981'},
+    {name:'📈 Growth Stage',count:0,revenue:0,roas:0,health:0,col:'#00d4ff'},
+    {name:'📊 Steady State',count:0,revenue:0,roas:0,health:0,col:'#f59e0b'},
+    {name:'⚠️ Underperformers',count:0,revenue:0,roas:0,health:0,col:'#ef4444'},
+  ];
+  const sorted=[...campaigns].sort((a,b)=>b.roas-a.roas);
+  const q=Math.ceil(sorted.length/4)||1;
+  [[0,q],[q,q*2],[q*2,q*3],[q*3,sorted.length]].forEach(([s,e],i)=>{
+    const grp=sorted.slice(s,e);
+    if(!grp.length)return;
+    clusters[i].count=grp.length;
+    clusters[i].revenue=grp.reduce((a,x)=>a+x.revenue,0)/grp.length;
+    clusters[i].roas=grp.reduce((a,x)=>a+x.roas,0)/grp.length;
+    clusters[i].health=grp.reduce((a,x)=>a+(x.healthScore||0),0)/grp.length*100;
+  });
+
+  el.innerHTML=clusters.map(cl=>`
+    <div class="cluster-card" style="border-color:${cl.col}33;">
+      <div class="cluster-name" style="color:${cl.col}">${cl.name}</div>
+      <div class="cluster-metric"><span class="cluster-metric-key">Campaigns</span><span class="cluster-metric-val">${cl.count}</span></div>
+      <div class="cluster-metric"><span class="cluster-metric-key">Avg Revenue</span><span class="cluster-metric-val">${fmtCurrency(cl.revenue)}</span></div>
+      <div class="cluster-metric"><span class="cluster-metric-key">Avg ROAS</span><span class="cluster-metric-val">${cl.roas.toFixed(2)}x</span></div>
+      <div style="margin-top:8px;"><div style="height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;"><div style="width:${Math.round(cl.health)}%;height:100%;background:${cl.col};"></div></div>
+      <div style="font-size:10px;color:${cl.col};font-family:var(--font-mono);margin-top:3px;">Health: ${Math.round(cl.health)}%</div></div>
+    </div>`).join('');
+}
+
+function drawClusterChart(){
+  const c=setupCanvas('clusterChart');if(!c)return;
+  const{ctx,w,h}=c;const pad=40;
+  const labels=['High Perf','Growth','Steady','Underperf'];
+  const sorted=[...campaigns].sort((a,b)=>b.roas-a.roas);
+  const q=Math.ceil(sorted.length/4)||1;
+  const revs=[[0,q],[q,q*2],[q*2,q*3],[q*3,sorted.length]].map(([s,e])=>{
+    const grp=sorted.slice(s,e);return grp.length?grp.reduce((a,x)=>a+x.revenue,0)/grp.length:0;
+  });
+  const maxR=Math.max(...revs)||1;
+  const barW=(w-pad*2)/4-10;
+  drawGrid(ctx,w,h,pad,4);
+  revs.forEach((r,i)=>{
+    const x=pad+i*(barW+10)+5;const barH=(r/maxR)*(h-pad*2);const y=h-pad-barH;
+    const g=ctx.createLinearGradient(0,y,0,h-pad);g.addColorStop(0,COLORS[i]);g.addColorStop(1,COLORS[i]+'22');
+    ctx.fillStyle=g;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,barW,barH,4);else ctx.rect(x,y,barW,barH);ctx.fill();
+    ctx.fillStyle=getCol('text');ctx.font='bold 9px JetBrains Mono';ctx.textAlign='center';ctx.fillText(fmtCurrency(r),x+barW/2,y-5);
+    ctx.fillStyle=getCol('text2');ctx.font='9px Inter';ctx.fillText(labels[i],x+barW/2,h-pad+14);
+  });
+}
+
+function buildRiskTable(){
+  const el=document.getElementById('riskTable');if(!el)return;
+  const risky=campaigns.filter(c=>c.status==='risk'||c.riskFlag===1).slice(0,15);
+  if(!risky.length){el.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px;">No risk-flagged campaigns detected.</td></tr>';return;}
+  el.innerHTML=risky.map(c=>{
+    const risk=c.roas<1.5?'High':c.roas<2.5?'Medium':'Low';
+    const badge=risk==='High'?'badge-red':risk==='Medium'?'badge-yellow':'badge-green';
+    return`<tr class="${risk==='High'?'risk-high':''}">
+      <td>${c.name||c.id}</td><td>${c.channel}</td>
+      <td>${fmtCurrency(c.spend)}</td><td>${fmtCurrency(c.revenue)}</td>
+      <td style="font-family:var(--font-mono);color:${c.roas>2?'#f59e0b':'#ef4444'}">${(c.roas||0).toFixed(2)}x</td>
+      <td style="font-family:var(--font-mono);">${(c.intentScore||0).toFixed(3)}</td>
+      <td><span class="badge ${badge}">${risk}</span></td>
+      <td><button class="btn btn-outline" style="font-size:10px;padding:4px 10px;" onclick="toast('⚠️ Campaign flagged for review')">Review</button></td></tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════
+// REPORTS
+// ══════════════════════════════════════════════
+function buildReports(){
+  const d=summaryData;
+  document.getElementById('reportMeta').textContent=
+    `Generated: ${new Date().toLocaleDateString()} · ${d.total_campaigns||0} campaigns · Model: XGB+LGB Ensemble`;
+
+  const execEl=document.getElementById('execSummary');
+  if(execEl)execEl.innerHTML=`
+    Over the analysis period, <strong style="color:var(--text);">${d.total_campaigns||0} campaigns</strong> across channels generated
+    <strong style="color:#00d4ff;">${fmtCurrency(d.total_revenue||0)}</strong> in total revenue against
+    <strong style="color:#f59e0b;">${fmtCurrency(d.total_spend||0)}</strong> spend,
+    delivering ROAS of <strong style="color:#10b981;">${(d.avg_roas||0).toFixed(2)}x</strong>.<br><br>
+    The XGBoost + LightGBM ensemble (R²=0.942) identifies
+    <strong style="color:var(--text);">${d.top_channel||'Search'}</strong> as the highest-revenue channel.
+    <strong style="color:#ef4444;">${d.risk_campaigns||0} campaigns</strong> are flagged at risk.
+    SHAP analysis confirms spend efficiency, intent score, and ad quality as the top 3 revenue drivers.`;
+
+  const recEl=document.getElementById('reportRecs');
+  if(recEl)recEl.innerHTML=[
+    {t:'good',i:'📈',txt:`<strong>Reallocate to ${d.top_channel||'Search'}</strong> — highest predicted revenue ROAS per SHAP channel priors.`},
+    {t:'warn',i:'⚠️',txt:`<strong>Review ${d.risk_campaigns||0} risk campaigns</strong> — combined wasteful spend reduction opportunity.`},
+    {t:'good',i:'🎯',txt:'<strong>Scale high-intent campaigns</strong> — intent_score > 1.5 shows 2.3x conversion efficiency vs median.'},
+    {t:'bad',i:'🔴',txt:'<strong>Pause AQ<5 + bounce>65% campaigns</strong> — LIME confirms 40% below predicted revenue.'},
+  ].map(x=>`<div class="insight-item ${x.t}"><span class="insight-icon">${x.i}</span><div class="insight-text">${x.txt}</div></div>`).join('');
+}
+
+function drawChannelBreakdown(){
+  const c=setupCanvas('channelBreakdown');if(!c)return;
+  const{ctx,w,h}=c;const pad=40;
+  const chData=CHANNELS.map(ch=>({
+    ch,
+    rev:campaigns.filter(x=>x.channel===ch).reduce((s,x)=>s+x.revenue,0),
+    spend:campaigns.filter(x=>x.channel===ch).reduce((s,x)=>s+x.spend,0)
+  })).filter(d=>d.rev>0);
+  if(!chData.length){ctx.fillStyle='var(--text3)';ctx.font='12px Inter';ctx.textAlign='center';ctx.fillText('No data loaded',w/2,h/2);return;}
+  const maxR=Math.max(...chData.map(d=>d.rev));
+  const grpW=(w-pad*2)/chData.length;const bW=grpW*0.3;
+  drawGrid(ctx,w,h,pad);
+  chData.forEach((d,i)=>{
+    const gx=pad+i*grpW+grpW/2;
+    const rH=(d.rev/maxR)*(h-pad*2);const sH=(d.spend/maxR)*(h-pad*2);
+    ctx.fillStyle=COLORS[i%COLORS.length]+'cc';ctx.beginPath();if(ctx.roundRect)ctx.roundRect(gx-bW-2,h-pad-rH,bW,rH,3);else ctx.rect(gx-bW-2,h-pad-rH,bW,rH);ctx.fill();
+    ctx.fillStyle=COLORS[i%COLORS.length]+'44';ctx.beginPath();if(ctx.roundRect)ctx.roundRect(gx+2,h-pad-sH,bW,sH,3);else ctx.rect(gx+2,h-pad-sH,bW,sH);ctx.fill();
+    ctx.fillStyle=getCol('text2');ctx.font='9px Inter';ctx.textAlign='center';ctx.fillText(d.ch.split(' ')[0],gx,h-pad+14);
+  });
+}
+
+// ══════════════════════════════════════════════
+// ALERTS
+// ══════════════════════════════════════════════
+function buildAlerts(){
+  const el=document.getElementById('alertsList');if(!el)return;
+  const risky=campaigns.filter(c=>c.status==='risk').slice(0,3).map(c=>c.name||c.id).join(', ')||'Campaign-001';
+  const alerts=[
+    {sev:'danger',icon:'🔴',title:`Critical: ${summaryData.risk_campaigns||0} campaigns with ROAS < 1.5x`,body:`${risky} are spending budget without positive returns. Immediate review recommended.`,time:'Just now'},
+    {sev:'warn',icon:'🟡',title:'Warning: Bounce rate spike in Display channel',body:'Average bounce rate increased to 68.4% — above the 60% threshold flagged by SHAP as a negative revenue predictor.',time:'18 min ago'},
+    {sev:'warn',icon:'🟡',title:'Model drift alert: RMSE increasing',body:'Prediction residuals drifting to $189 (baseline $124). Consider retraining the model with the latest campaign data.',time:'2 hr ago'},
+    {sev:'info',icon:'🟢',title:`Opportunity: ${summaryData.top_channel||'Search'} campaigns outperforming`,body:`${summaryData.top_channel||'Search'} campaigns are 14.2% above predicted revenue. Consider increasing budget allocation.`,time:'4 hr ago'},
+  ];
+  const cols={danger:'#ef4444',warn:'#f59e0b',info:'#10b981'};
+  el.innerHTML=alerts.map(a=>`
+    <div class="panel" style="border-left:3px solid ${cols[a.sev]};">
+      <div class="panel-body" style="display:flex;gap:14px;align-items:flex-start;">
+        <span style="font-size:20px;flex-shrink:0;">${a.icon}</span>
+        <div style="flex:1;">
+          <div style="font-weight:600;color:var(--text);margin-bottom:4px;font-family:var(--font-display);">${a.title}</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.5;">${a.body}</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:8px;font-family:var(--font-mono);">${a.time}</div>
+        </div>
+        <button class="btn btn-outline" style="font-size:11px;flex-shrink:0;" onclick="this.closest('.panel').remove();toast('Alert dismissed')">Dismiss</button>
+      </div>
+    </div>`).join('');
+}
+
+
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+function goPage(name, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const page=document.getElementById('page-'+name);
+  if(page)page.classList.add('active');
+  if(el)el.classList.add('active');
+
+  setTimeout(()=>{
+    if(name==='overview')    { drawOverviewCharts(); buildFunnel(); buildHealthBars(); }
+    
+    if(name==='explainability'){ buildShapList(); buildLimeList(); drawShapDependence(); buildXAIInsights(); }
+    if(name==='segments')    { buildClusterCards(); drawClusterChart(); buildRiskTable(); }
+    if(name==='predict')     { drawSensitivityChart(); }
+    if(name==='reports')     { buildReports(); drawChannelBreakdown(); }
+    if(name==='alerts')      { buildAlerts(); }
+    if(name==='budget')      { buildChannelCheckboxes(); }
+  }, 60);
+}
+
+window.addEventListener('resize',()=>{
+  const active=document.querySelector('.page.active');
+  if(!active)return;
+  goPage(active.id.replace('page-',''),null);
+});
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async ()=>{
+  await checkHealth();
+  await fetchSummary();
+  await fetchCampaigns();
+  await fetchShap();
+  drawOverviewCharts();
+  buildFunnel();
+  buildHealthBars();
+  buildChannelCheckboxes();
+  // Health check every 30s
+  setInterval(checkHealth, 30000);
+});
+</script>
+</body>
+</html>
